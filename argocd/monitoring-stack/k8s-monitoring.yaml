@@ -77,12 +77,10 @@ spec:
           enabled: false
 
         applicationObservability:
-          enabled: true
-          collector: alloy-metrics
+          enabled: false
 
         autoInstrumentation:
-          enabled: true
-          collector: alloy-metrics
+          enabled: false
 
         profiling:
           enabled: true
