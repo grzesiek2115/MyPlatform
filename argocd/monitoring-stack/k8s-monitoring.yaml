@@ -92,6 +92,9 @@ spec:
         collectors:
           alloy-metrics:
             enabled: true
+            alloy:
+              clustering:
+                enabled: true
           alloy-logs:
             enabled: true
             alloy:
