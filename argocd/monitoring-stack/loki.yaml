@@ -9,7 +9,7 @@ spec:
     server: https://kubernetes.default.svc
   project: monitoring-stack
   source:
-    repoURL: https://grafana.github.io/helm-charts
+    repoURL: https://grafana-community.github.io/helm-charts
     chart: loki
     targetRevision: 17.3.1
     helm:
