@@ -75,25 +75,22 @@ spec:
         profilesReceiver:
           enabled: true
 
-        alloy-metrics:
-          enabled: true
-
-        alloy-logs:
-          enabled: true
-          alloy:
-            mounts:
-              varlog: false
-            clustering:
-              enabled: true
-
-        alloy-singleton:
-          enabled: true
-
-        alloy-profiles:
-          enabled: true
-
-        alloy-receiver:
-          enabled: false
+        collectors:
+          alloy-metrics:
+            enabled: true
+          alloy-logs:
+            enabled: true
+            alloy:
+              mounts:
+                varlog: false
+              clustering:
+                enabled: true
+          alloy-singleton:
+            enabled: true
+          alloy-profiles:
+            enabled: true
+          alloy-receiver:
+            enabled: false
   syncPolicy:
     automated:
       prune: true
