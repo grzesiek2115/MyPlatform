@@ -27,6 +27,9 @@ spec:
           tempo:
             type: otlp
             url: http://tempo.tempo.svc.cluster.local:4317
+          pyroscope:
+            type: pyroscope
+            url: http://pyroscope.pyroscope.svc.cluster.local:4040
 
         clusterMetrics:
           enabled: true
@@ -46,6 +49,22 @@ spec:
         costMetrics:
           enabled: true
           collector: alloy-singleton
+          opencost:
+            labelMatchers:
+              app.kubernetes.io/name: opencost
+
+        telemetryServices:
+          opencost:
+            deploy: true
+            metricsSource: prometheus
+            opencost:
+              exporter:
+                defaultClusterId: kind-myplatform
+              prometheus:
+                external:
+                  url: http://prometheus-operated.monitoring.svc.cluster.local:9090/api/v1/query
+          kepler:
+            deploy: true
 
         annotationAutodiscovery:
           enabled: true
@@ -90,6 +109,8 @@ spec:
         profiling:
           enabled: true
           collector: alloy-profiles
+          ebpf:
+            enabled: true
 
         profilesReceiver:
           enabled: true
@@ -103,9 +124,11 @@ spec:
                 enabled: true
           alloy-logs:
             enabled: true
+            controller:
+              type: daemonset
             alloy:
               mounts:
-                varlog: false
+                varlog: true
               clustering:
                 enabled: true
           alloy-singleton:
