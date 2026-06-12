@@ -27,53 +27,67 @@ spec:
 
         clusterMetrics:
           enabled: true
+          collector: alloy-singleton
 
         hostMetrics:
           enabled: true
+          collector: alloy-metrics
           energyMetrics:
             enabled: true
 
         costMetrics:
           enabled: true
+          collector: alloy-singleton
 
         annotationAutodiscovery:
           enabled: true
+          collector: alloy-metrics
 
         prometheusOperatorObjects:
           enabled: true
+          collector: alloy-metrics
 
         integrations:
           enabled: true
+          collector: alloy-metrics
 
         clusterEvents:
           enabled: true
+          collector: alloy-singleton
 
         nodeLogs:
           enabled: true
+          collector: alloy-logs
 
         podLogsViaLoki:
           enabled: true
+          collector: alloy-logs
 
         podLogsViaOpenTelemetry:
           enabled: false
 
         podLogsObjects:
           enabled: true
+          collector: alloy-logs
 
         podLogsViaKubernetesApi:
           enabled: false
 
         applicationObservability:
           enabled: true
+          collector: alloy-metrics
 
         autoInstrumentation:
           enabled: true
+          collector: alloy-metrics
 
         profiling:
           enabled: true
+          collector: alloy-profiles
 
         profilesReceiver:
           enabled: true
+          collector: alloy-profiles
 
         collectors:
           alloy-metrics:
