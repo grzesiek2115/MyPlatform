@@ -1,0 +1,103 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: k8s-monitoring
+  namespace: argocd
+spec:
+  destination:
+    namespace: monitoring
+    server: https://kubernetes.default.svc
+  project: monitoring-stack
+  source:
+    repoURL: https://grafana.github.io/helm-charts
+    chart: k8s-monitoring
+    targetRevision: 4.1.5
+    helm:
+      values: |
+        cluster:
+          name: kind-myplatform
+
+        destinations:
+          - name: prometheus
+            type: prometheus
+            url: http://prometheus-operated.monitoring.svc.cluster.local:9090/api/v1/write
+          - name: loki
+            type: loki
+            url: http://loki.loki.svc.cluster.local:3100/loki/api/v1/push
+
+        clusterMetrics:
+          enabled: true
+
+        hostMetrics:
+          enabled: true
+          energyMetrics:
+            enabled: true
+
+        costMetrics:
+          enabled: true
+
+        annotationAutodiscovery:
+          enabled: true
+
+        prometheusOperatorObjects:
+          enabled: true
+
+        integrations:
+          enabled: true
+
+        clusterEvents:
+          enabled: true
+
+        nodeLogs:
+          enabled: true
+
+        podLogsViaLoki:
+          enabled: true
+
+        podLogsViaOpenTelemetry:
+          enabled: false
+
+        podLogsObjects:
+          enabled: true
+
+        podLogsViaKubernetesApi:
+          enabled: false
+
+        applicationObservability:
+          enabled: true
+
+        autoInstrumentation:
+          enabled: true
+
+        profiling:
+          enabled: true
+
+        profilesReceiver:
+          enabled: true
+
+        alloy-metrics:
+          enabled: true
+
+        alloy-logs:
+          enabled: true
+          alloy:
+            mounts:
+              varlog: false
+            clustering:
+              enabled: true
+
+        alloy-singleton:
+          enabled: true
+
+        alloy-profiles:
+          enabled: true
+
+        alloy-receiver:
+          enabled: false
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
