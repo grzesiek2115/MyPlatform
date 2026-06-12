@@ -105,8 +105,14 @@ spec:
                 enabled: true
           alloy-singleton:
             enabled: true
+            alloy:
+              clustering:
+                enabled: true
           alloy-profiles:
             enabled: true
+            alloy:
+              clustering:
+                enabled: true
           alloy-receiver:
             enabled: false
   syncPolicy:
