@@ -24,6 +24,9 @@ spec:
           loki:
             type: loki
             url: http://loki.loki.svc.cluster.local:3100/loki/api/v1/push
+          tempo:
+            type: otlp
+            url: http://tempo.tempo.svc.cluster.local:4317
 
         clusterMetrics:
           enabled: true
