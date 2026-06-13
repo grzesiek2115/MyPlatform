@@ -17,6 +17,10 @@ spec:
         cluster:
           name: kind-myplatform
 
+        grafana:
+          namespace: grafana
+          deployDashboards: true
+
         destinations:
           prometheus:
             type: prometheus
