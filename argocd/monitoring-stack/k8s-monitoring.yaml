@@ -114,6 +114,10 @@ spec:
           enabled: true
           collector: alloy-profiles
           ebpf:
+            enabled: false
+          java:
+            enabled: false
+          pprof:
             enabled: true
 
         profilesReceiver:
