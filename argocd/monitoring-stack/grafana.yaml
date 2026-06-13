@@ -92,6 +92,9 @@ spec:
               - name: Tempo
                 type: tempo
                 url: http://tempo.tempo.svc.cluster.local:3100
+              - name: Pyroscope
+                type: grafana-pyroscope-datasource
+                url: http://pyroscope.pyroscope.svc.cluster.local:4040
 
         resources:
           requests:
