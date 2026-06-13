@@ -17,6 +17,9 @@ spec:
         grafana:
           enabled: false
 
+        kubelet:
+          enabled: false
+
         prometheus:
           prometheusSpec:
             enableRemoteWriteReceiver: true
