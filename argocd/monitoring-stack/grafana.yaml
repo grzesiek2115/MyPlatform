@@ -19,10 +19,64 @@ spec:
         sidecar:
           dashboards:
             enabled: true
+            label: grafana_dashboard
+            labelValue: "1"
             searchNamespace: ALL
           datasources:
             enabled: true
             searchNamespace: ALL
+
+        dashboards:
+          default:
+            kubernetes-cluster:
+              gnetId: 7249
+              revision: 1
+              datasource: Prometheus
+            node-exporter:
+              gnetId: 1860
+              revision: 37
+              datasource: Prometheus
+            kubernetes-pods:
+              gnetId: 6781
+              revision: 1
+              datasource: Prometheus
+            loki-logs:
+              gnetId: 13639
+              revision: 2
+              datasource: Loki
+            kepler-energy:
+              gnetId: 16280
+              revision: 1
+              datasource: Prometheus
+            opencost:
+              gnetId: 15661
+              revision: 1
+              datasource: Prometheus
+            argocd:
+              gnetId: 14584
+              revision: 1
+              datasource: Prometheus
+            kubernetes-cluster-monitoring:
+              gnetId: 6417
+              revision: 1
+              datasource: Prometheus
+            website-monitoring:
+              gnetId: 13041
+              revision: 4
+              datasource: Prometheus
+
+        dashboardProviders:
+          dashboardproviders.yaml:
+            apiVersion: 1
+            providers:
+              - name: default
+                orgId: 1
+                folder: Kubernetes
+                type: file
+                disableDeletion: true
+                editable: false
+                options:
+                  path: /var/lib/grafana/dashboards/default
 
         datasources:
           datasources.yaml:
