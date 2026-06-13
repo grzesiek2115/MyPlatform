@@ -15,35 +15,22 @@ spec:
     helm:
       values: |
         pyroscope:
-          replicationFactor: 1
-          components:
-            querier:
-              replicas: 1
-            queryFrontend:
-              replicas: 1
-            distributor:
-              replicas: 1
-            ingester:
-              replicas: 1
+          replicaCount: 1
+          persistence:
+            enabled: true
+            size: 5Gi
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 512Mi
 
         alloy:
           enabled: false
 
-        storage:
-          backend: filesystem
-          filesystem:
-            dir: /data/pyroscope
-
-        persistence:
-          enabled: true
-          size: 5Gi
-
-        resources:
-          requests:
-            cpu: 100m
-            memory: 256Mi
-          limits:
-            memory: 512Mi
+        minio:
+          enabled: false
   syncPolicy:
     automated:
       prune: true
