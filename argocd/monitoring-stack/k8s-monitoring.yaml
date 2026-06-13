@@ -62,7 +62,7 @@ spec:
                 defaultClusterId: kind-myplatform
               prometheus:
                 external:
-                  url: http://prometheus-operated.monitoring.svc.cluster.local:9090/api/v1/query
+                  url: http://prometheus-operated.monitoring.svc.cluster.local:9090
           kepler:
             deploy: true
 
