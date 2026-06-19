@@ -18,6 +18,9 @@ spec:
           storage:
             trace:
               backend: local
+          metricsGenerator:
+            enabled: true
+            remoteWriteUrl: http://prometheus-operated.monitoring.svc.cluster.local:9090/api/v1/write
           resources:
             requests:
               cpu: 100m
