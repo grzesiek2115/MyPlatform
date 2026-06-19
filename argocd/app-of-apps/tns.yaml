@@ -7,7 +7,7 @@ spec:
   destination:
     namespace: tns
     server: https://kubernetes.default.svc
-  project: default
+  project: tns
   source:
     repoURL: https://github.com/grzesiek2115/MyPlatform.git
     targetRevision: main
