@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tns-app
+  namespace: tns
+  labels:
+    app: tns-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tns-app
+  template:
+    metadata:
+      labels:
+        app: tns-app
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "80"
+        profiles.grafana.com/cpu.scrape: "false"
+        instrumentation.opentelemetry.io/inject-go: "true"
+    spec:
+      containers:
+        - name: tns-app
+          image: grafana/tns-app:latest
+          args:
+            - -log.level=debug
+            - http://tns-db.tns.svc.cluster.local:80
+          ports:
+            - containerPort: 80
+          env:
+            - name: JAEGER_AGENT_HOST
+              value: ""
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://tempo.tempo.svc.cluster.local:4317
+            - name: OTEL_EXPORTER_OTLP_INSECURE
+              value: "true"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tns-app
+  namespace: tns
+spec:
+  selector:
+    app: tns-app
+  ports:
+    - port: 80
+      targetPort: 80

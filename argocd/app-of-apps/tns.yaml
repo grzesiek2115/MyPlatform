@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tns
+  namespace: argocd
+spec:
+  destination:
+    namespace: tns
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    repoURL: https://github.com/grzesiek2115/MyPlatform.git
+    targetRevision: main
+    path: argocd/tns/manifests
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

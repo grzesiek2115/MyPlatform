@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tns-db
+  namespace: tns
+  labels:
+    app: tns-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tns-db
+  template:
+    metadata:
+      labels:
+        app: tns-db
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "80"
+    spec:
+      containers:
+        - name: tns-db
+          image: grafana/tns-db:latest
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tns-db
+  namespace: tns
+spec:
+  selector:
+    app: tns-db
+  ports:
+    - port: 80
+      targetPort: 80

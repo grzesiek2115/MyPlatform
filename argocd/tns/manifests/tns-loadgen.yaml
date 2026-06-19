@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tns-loadgen
+  namespace: tns
+  labels:
+    app: tns-loadgen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tns-loadgen
+  template:
+    metadata:
+      labels:
+        app: tns-loadgen
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "80"
+    spec:
+      containers:
+        - name: tns-loadgen
+          image: grafana/tns-loadgen:latest
+          args:
+            - -log.level=debug
+            - http://tns-app.tns.svc.cluster.local:80
+          ports:
+            - containerPort: 80
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://tempo.tempo.svc.cluster.local:4317
+            - name: OTEL_EXPORTER_OTLP_INSECURE
+              value: "true"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
