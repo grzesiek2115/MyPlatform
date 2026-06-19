@@ -91,7 +91,7 @@ spec:
                 url: http://loki.loki.svc.cluster.local:3100
               - name: Tempo
                 type: tempo
-                url: http://tempo.tempo.svc.cluster.local:3100
+                url: http://tempo.tempo.svc.cluster.local:3200
               - name: Pyroscope
                 type: grafana-pyroscope-datasource
                 url: http://pyroscope.pyroscope.svc.cluster.local:4040
