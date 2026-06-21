@@ -8,6 +8,7 @@ metadata:
   labels:
     team: platform
     app: tns
+    release: kube-prometheus-stack
 spec:
   service: tns-app
   labels:
