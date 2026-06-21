@@ -17,6 +17,8 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "80"
+        profiles.grafana.com/cpu.scrape: "true"
+        profiles.grafana.com/memory.scrape: "true"
     spec:
       containers:
         - name: tns-db
