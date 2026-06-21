@@ -13,6 +13,7 @@ spec:
   labels:
     team: platform
     app: tns
+    release: kube-prometheus-stack
   slos:
     - name: requests-availability
       objective: 99.9
