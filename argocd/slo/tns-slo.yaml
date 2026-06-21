@@ -1,0 +1,58 @@
+apiVersion: sloth.slok.dev/v1
+kind: PrometheusServiceLevel
+metadata:
+  name: tns-app
+  namespace: monitoring
+  labels:
+    team: platform
+    app: tns
+spec:
+  service: tns-app
+  labels:
+    team: platform
+    app: tns
+  slos:
+    - name: requests-availability
+      objective: 99.9
+      description: "99.9% of HTTP requests to tns-app must succeed (non-5xx)"
+      sli:
+        events:
+          errorQuery: |
+            sum(rate(http_request_duration_seconds_count{job="tns-app", code=~"5.."}[{{.window}}]))
+          totalQuery: |
+            sum(rate(http_request_duration_seconds_count{job="tns-app"}[{{.window}}]))
+      alerting:
+        name: TNSHighErrorRate
+        labels:
+          team: platform
+        annotations:
+          summary: "TNS app error rate is too high"
+          runbook: "https://github.com/grzesiek2115/MyPlatform/blob/main/docs.md"
+        pageAlert:
+          labels:
+            severity: critical
+        ticketAlert:
+          labels:
+            severity: warning
+
+    - name: requests-latency
+      objective: 99.0
+      description: "99% of requests must complete within 500ms"
+      sli:
+        events:
+          errorQuery: |
+            sum(rate(http_request_duration_seconds_bucket{job="tns-app", le="0.5"}[{{.window}}]))
+          totalQuery: |
+            sum(rate(http_request_duration_seconds_count{job="tns-app"}[{{.window}}]))
+      alerting:
+        name: TNSHighLatency
+        labels:
+          team: platform
+        annotations:
+          summary: "TNS app latency is too high (p99 > 500ms)"
+        pageAlert:
+          labels:
+            severity: critical
+        ticketAlert:
+          labels:
+            severity: warning
