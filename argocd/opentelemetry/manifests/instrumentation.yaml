@@ -19,4 +19,4 @@ spec:
   go:
     env:
       - name: OTEL_GO_AUTO_TARGET_EXE
-        value: /app/tns-app
+        value: /app
