@@ -19,6 +19,8 @@ spec:
         manager:
           collectorImage:
             repository: otel/opentelemetry-collector-contrib
+          extraArgs:
+            - --enable-go-auto-instrumentation
           resources:
             requests:
               cpu: 50m
