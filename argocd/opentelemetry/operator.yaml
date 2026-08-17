@@ -20,7 +20,7 @@ spec:
           collectorImage:
             repository: otel/opentelemetry-collector-contrib
           extraArgs:
-            - --enable-go-auto-instrumentation
+            - --enable-go-instrumentation
           resources:
             requests:
               cpu: 50m
