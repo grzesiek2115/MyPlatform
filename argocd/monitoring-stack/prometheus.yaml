@@ -31,6 +31,9 @@ spec:
           prometheusSpec:
             enableRemoteWriteReceiver: true
             retention: 7d
+            ruleSelector: {}
+            ruleNamespaceSelector: {}
+            ruleSelectorNilUsesHelmValues: false
             resources:
               requests:
                 cpu: 100m
@@ -40,6 +43,12 @@ spec:
 
         alertmanager:
           enabled: true
+          alertmanagerSpec:
+            alertmanagerConfigSelector:
+              matchLabels:
+                alertmanagerConfig: monitoring
+            alertmanagerConfigNamespaceSelector:
+              matchLabels: {}
   syncPolicy:
     automated:
       prune: true
