@@ -20,3 +20,5 @@ spec:
     env:
       - name: OTEL_GO_AUTO_TARGET_EXE
         value: /app
+      - name: OTEL_LOG_LEVEL
+        value: debug
