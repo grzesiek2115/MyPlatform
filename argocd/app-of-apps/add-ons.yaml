@@ -1,10 +1,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: opentelemetry
+  name: add-ons
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "0"
+    argocd.argoproj.io/sync-wave: "-1"
 spec:
   destination:
     namespace: argocd
@@ -13,7 +13,7 @@ spec:
   source:
     repoURL: https://github.com/grzesiek2115/MyPlatform.git
     targetRevision: main
-    path: argocd/opentelemetry
+    path: argocd/add-ons
   syncPolicy:
     automated:
       prune: true

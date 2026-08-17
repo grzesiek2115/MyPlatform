@@ -26,12 +26,11 @@ spec:
             limits:
               memory: 128Mi
 
-        # cert-manager nie jest wymagany - operator generuje certyfikaty sam
         admissionWebhooks:
           certManager:
-            enabled: false
-          autoGenerateCert:
             enabled: true
+          autoGenerateCert:
+            enabled: false
 
         crds:
           create: true
@@ -42,3 +41,4 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+      - SkipDryRunOnMissingResource=true
