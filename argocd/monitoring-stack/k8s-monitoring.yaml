@@ -45,7 +45,8 @@ spec:
             namespace: monitoring
 
         hostMetrics:
-          enabled: true
+          # Disabled due to duplication of host metrics with kube-prometheus-stack nodeExporter (enabled by default)
+          enabled: false
           collector: alloy-metrics
           energyMetrics:
             enabled: true
