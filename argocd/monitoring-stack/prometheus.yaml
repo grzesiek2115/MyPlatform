@@ -33,6 +33,24 @@ spec:
         kubeStateMetrics:
           enabled: false
 
+        # Alloy's clusterMetrics.controlPlane covers these (apiserver, scheduler,
+        # controller-manager, coredns, kube-proxy). etcd stays here - Alloy's
+        # integrations.etcd needs extra TLS client-cert config we haven't set up.
+        kubeApiServer:
+          enabled: false
+
+        kubeControllerManager:
+          enabled: false
+
+        kubeScheduler:
+          enabled: false
+
+        coreDns:
+          enabled: false
+
+        kubeProxy:
+          enabled: false
+
         prometheus:
           prometheusSpec:
             enableRemoteWriteReceiver: true

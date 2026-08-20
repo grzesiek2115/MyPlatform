@@ -40,6 +40,9 @@ spec:
           enabled: true
           collector: alloy-singleton
 
+          controlPlane:
+            enabled: true
+
         # Node-level OS metrics (CPU/memory/disk) + energy usage
         hostMetrics:
           enabled: true
