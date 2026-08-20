@@ -35,16 +35,23 @@ spec:
             type: pyroscope
             url: http://pyroscope.pyroscope.svc.cluster.local:4040
 
+        # Kubernetes object state metrics (kube-state-metrics) + kubelet/cAdvisor
         clusterMetrics:
           enabled: true
           collector: alloy-singleton
 
+        # Node-level OS metrics (CPU/memory/disk) + energy usage
         hostMetrics:
           enabled: true
           collector: alloy-metrics
+          # linuxHosts is the actual CPU/memory/disk collector - defaults to
+          # disabled even when hostMetrics.enabled is true
+          linuxHosts:
+            enabled: true
           energyMetrics:
             enabled: true
 
+        # Kubernetes cost allocation via OpenCost
         costMetrics:
           enabled: true
           collector: alloy-singleton
@@ -52,8 +59,11 @@ spec:
             labelMatchers:
               app.kubernetes.io/name: opencost
 
+        # Extra workloads Alloy deploys itself to have something to scrape
         telemetryServices:
           kube-state-metrics:
+            deploy: true
+          node-exporter:
             deploy: true
           opencost:
             deploy: true
@@ -67,46 +77,58 @@ spec:
           kepler:
             deploy: true
 
+        # Scrapes pods carrying prometheus.io/scrape annotations
         annotationAutodiscovery:
           enabled: true
           collector: alloy-metrics
 
+        # Re-scrape targets defined by ServiceMonitor/PodMonitor CRs
         prometheusOperatorObjects:
           enabled: false
           collector: alloy-metrics
 
+        # Pre-built scrapers for common services (etcd, cert-manager, etc.)
         integrations:
           enabled: true
           collector: alloy-metrics
 
+        # Kubernetes events forwarded as logs
         clusterEvents:
           enabled: true
           collector: alloy-singleton
 
+        # Node-level system/journal logs
         nodeLogs:
           enabled: true
           collector: alloy-logs
 
+        # Container logs shipped to Loki
         podLogsViaLoki:
           enabled: true
           collector: alloy-logs
 
+        # Container logs shipped via OTLP instead of Loki
         podLogsViaOpenTelemetry:
           enabled: false
 
+        # Log collection driven by PodLogs CRs
         podLogsObjects:
           enabled: true
           collector: alloy-logs
 
+        # Container logs pulled via the Kubernetes API instead of node disk
         podLogsViaKubernetesApi:
           enabled: false
 
+        # OTLP receiver for traces/metrics/logs emitted directly by apps
         applicationObservability:
           enabled: false
 
+        # Webhook injection of OTel auto-instrumentation into app pods
         autoInstrumentation:
           enabled: false
 
+        # pprof profile collection for Pyroscope
         profiling:
           enabled: true
           collector: alloy-profiles
@@ -117,10 +139,12 @@ spec:
           pprof:
             enabled: true
 
+        # OTLP receiver for profiles pushed directly by apps
         profilesReceiver:
           enabled: true
           collector: alloy-profiles
 
+        # The underlying Alloy instances and their roles
         collectors:
           alloy-metrics:
             enabled: true
