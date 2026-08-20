@@ -27,6 +27,12 @@ spec:
         kubelet:
           enabled: false
 
+        nodeExporter:
+          enabled: false
+
+        kubeStateMetrics:
+          enabled: false
+
         prometheus:
           prometheusSpec:
             enableRemoteWriteReceiver: true

@@ -38,15 +38,9 @@ spec:
         clusterMetrics:
           enabled: true
           collector: alloy-singleton
-          kube-state-metrics:
-            labelMatchers:
-              app.kubernetes.io/name: kube-state-metrics
-              app.kubernetes.io/instance: kube-prometheus-stack
-            namespace: monitoring
 
         hostMetrics:
-          # Disabled due to duplication of host metrics with kube-prometheus-stack nodeExporter (enabled by default)
-          enabled: false
+          enabled: true
           collector: alloy-metrics
           energyMetrics:
             enabled: true
@@ -59,6 +53,8 @@ spec:
               app.kubernetes.io/name: opencost
 
         telemetryServices:
+          kube-state-metrics:
+            deploy: true
           opencost:
             deploy: true
             metricsSource: prometheus
@@ -76,7 +72,7 @@ spec:
           collector: alloy-metrics
 
         prometheusOperatorObjects:
-          enabled: true
+          enabled: false
           collector: alloy-metrics
 
         integrations:
