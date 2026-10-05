@@ -128,7 +128,14 @@ spec:
 
         # OTLP receiver for traces/metrics/logs emitted directly by apps
         applicationObservability:
-          enabled: false
+          enabled: true
+          collector: alloy-receiver
+          receivers:
+            otlp:
+              grpc:
+                enabled: true
+              http:
+                enabled: true
 
         # Webhook injection of OTel auto-instrumentation into app pods
         autoInstrumentation:
@@ -177,7 +184,7 @@ spec:
               clustering:
                 enabled: true
           alloy-receiver:
-            enabled: false
+            enabled: true
   syncPolicy:
     automated:
       prune: true

@@ -1,0 +1,146 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-demo-api-code
+  namespace: otel-demo
+data:
+  requirements.txt: |
+    flask==3.1.3
+    requests==2.34.2
+    opentelemetry-distro==0.66b0
+    opentelemetry-exporter-otlp-proto-http==1.45.0
+  app.py: |
+    import requests
+    from flask import Flask, jsonify
+    from opentelemetry import trace
+
+    app = Flask(__name__)
+    tracer = trace.get_tracer("otel-demo-api")
+
+    INVENTORY_URL = "http://otel-demo-inventory.otel-demo.svc.cluster.local:8080/stock"
+
+    @app.route("/checkout")
+    def checkout():
+        # Manual span around the business logic - auto-instrumentation gives us
+        # the HTTP server/client spans for free, this shows the SDK API for the
+        # part auto-instrumentation can't see: what the handler actually decides.
+        with tracer.start_as_current_span("validate_order") as span:
+            span.set_attribute("order.item", "WIDGET-1")
+            try:
+                # requests is auto-instrumented: traceparent header is injected
+                # automatically, this span becomes the parent of inventory's span.
+                resp = requests.get(INVENTORY_URL, timeout=5)
+            except requests.RequestException as exc:
+                span.record_exception(exc)
+                return jsonify(error="checkout failed: inventory unreachable"), 502
+
+        if resp.status_code != 200:
+            return jsonify(error="checkout failed: inventory unavailable"), 502
+        return jsonify(status="ok", inventory=resp.json())
+
+    @app.route("/healthz")
+    def healthz():
+        return jsonify(status="ok")
+
+    if __name__ == "__main__":
+        app.run(host="0.0.0.0", port=8080)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-demo-api
+  namespace: otel-demo
+  labels:
+    app: otel-demo-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otel-demo-api
+  template:
+    metadata:
+      labels:
+        app: otel-demo-api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+    spec:
+      initContainers:
+        - name: install-otel
+          image: python:3.12-slim
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              pip install --no-cache-dir --prefix=/otel-pkgs -r /code/requirements.txt
+              PATH="/otel-pkgs/bin:$PATH" \
+              PYTHONPATH="/otel-pkgs/lib/python3.12/site-packages" \
+                opentelemetry-bootstrap -a install
+          volumeMounts:
+            - name: code
+              mountPath: /code
+            - name: otel-pkgs
+              mountPath: /otel-pkgs
+      containers:
+        - name: app
+          image: python:3.12-slim
+          command: ["opentelemetry-instrument", "python", "/code/app.py"]
+          env:
+            - name: PATH
+              value: "/otel-pkgs/bin:/usr/local/bin:/usr/bin:/bin"
+            - name: PYTHONPATH
+              value: "/otel-pkgs/lib/python3.12/site-packages"
+            - name: OTEL_SERVICE_NAME
+              value: otel-demo-api
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "service.namespace=otel-demo,deployment.environment.name=dev"
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://k8s-monitoring-alloy-receiver.monitoring.svc.cluster.local:4318"
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: "http/protobuf"
+            - name: OTEL_TRACES_EXPORTER
+              value: "otlp"
+            - name: OTEL_METRICS_EXPORTER
+              value: "otlp"
+            - name: OTEL_LOGS_EXPORTER
+              value: "none"
+            - name: OTEL_TRACES_SAMPLER
+              value: "always_on"
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 5
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 192Mi
+          volumeMounts:
+            - name: code
+              mountPath: /code
+            - name: otel-pkgs
+              mountPath: /otel-pkgs
+      volumes:
+        - name: code
+          configMap:
+            name: otel-demo-api-code
+        - name: otel-pkgs
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-demo-api
+  namespace: otel-demo
+spec:
+  selector:
+    app: otel-demo-api
+  ports:
+    - port: 8080
+      targetPort: 8080

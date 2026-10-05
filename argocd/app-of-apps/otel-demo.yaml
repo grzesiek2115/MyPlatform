@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: otel-demo
+  namespace: argocd
+spec:
+  destination:
+    namespace: otel-demo
+    server: https://kubernetes.default.svc
+  project: otel-demo
+  source:
+    repoURL: https://github.com/grzesiek2115/MyPlatform.git
+    targetRevision: main
+    path: argocd/otel-demo/manifests
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
