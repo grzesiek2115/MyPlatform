@@ -68,6 +68,13 @@ spec:
             - |
               set -e
               pip install --no-cache-dir --prefix=/otel-pkgs -r /code/requirements.txt
+              # opentelemetry-bootstrap shells out to its own `pip install` to add
+              # the auto-detected instrumentation packages (flask, requests...).
+              # That subprocess does NOT inherit --prefix, so without PIP_PREFIX it
+              # writes into this init container's own (non-shared) site-packages
+              # and the main container never sees it - only the explicit --prefix
+              # install above would survive via the shared emptyDir.
+              export PIP_PREFIX=/otel-pkgs
               PATH="/otel-pkgs/bin:$PATH" \
               PYTHONPATH="/otel-pkgs/lib/python3.12/site-packages" \
                 opentelemetry-bootstrap -a install
