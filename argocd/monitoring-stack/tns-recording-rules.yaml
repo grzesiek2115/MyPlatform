@@ -1,0 +1,29 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: tns-app-recording-rules
+  namespace: monitoring
+  labels:
+    team: platform
+    app: tns
+spec:
+  groups:
+    - name: tns-app.recording
+      interval: 30s
+      rules:
+        # level:metric:operations naming convention
+        - record: service:http_requests:rate5m
+          expr: |
+            sum(rate(http_request_duration_seconds_count{job="tns-app"}[5m]))
+
+        - record: service:http_request_errors:ratio_rate5m
+          expr: |
+            sum(rate(http_request_duration_seconds_count{job="tns-app", code=~"5.."}[5m]))
+            /
+            sum(rate(http_request_duration_seconds_count{job="tns-app"}[5m]))
+
+        - record: service:http_request_duration:p95_5m
+          expr: |
+            histogram_quantile(0.95,
+              sum by (le) (rate(http_request_duration_seconds_bucket{job="tns-app"}[5m]))
+            )
