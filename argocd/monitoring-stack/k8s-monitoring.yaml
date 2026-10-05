@@ -100,7 +100,10 @@ spec:
           enabled: true
           collector: alloy-singleton
 
-        # Node-level system/journal logs
+        # Node-level system/journal logs - disabled, doesn't work on Kind
+        # (chart reads /var/log/journal, but Kind nodes only have volatile
+        # journald storage at /run/log/journal, which alloy-logs doesn't
+        # mount anyway)
         nodeLogs:
           enabled: true
           collector: alloy-logs

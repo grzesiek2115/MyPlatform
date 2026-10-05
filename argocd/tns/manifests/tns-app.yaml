@@ -19,7 +19,6 @@ spec:
         prometheus.io/port: "80"
         profiles.grafana.com/cpu.scrape: "true"
         profiles.grafana.com/memory.scrape: "true"
-        instrumentation.opentelemetry.io/inject-go: "true"
     spec:
       containers:
         - name: tns-app
