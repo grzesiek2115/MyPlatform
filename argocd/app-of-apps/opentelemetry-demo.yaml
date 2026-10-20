@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: opentelemetry-demo
+  namespace: argocd
+spec:
+  destination:
+    namespace: opentelemetry-demo
+    server: https://kubernetes.default.svc
+  project: otel-demo
+  source:
+    repoURL: https://open-telemetry.github.io/opentelemetry-helm-charts
+    chart: opentelemetry-demo
+    targetRevision: 0.42.4
+    helm:
+      values: |
+        grafana:
+          enabled: false
+        jaeger:
+          enabled: false
+        prometheus:
+          enabled: false
+        opensearch:
+          enabled: false
+        opentelemetry-collector:
+          config:
+            exporters:
+              otlp_grpc/alloy:
+                endpoint: k8s-monitoring-alloy-receiver.monitoring.svc.cluster.local:4317
+                tls:
+                  insecure: true
+            service:
+              pipelines:
+                traces:
+                  exporters: [otlp_grpc/alloy, debug, span_metrics]
+                metrics:
+                  exporters: [otlp_grpc/alloy, debug]
+                logs:
+                  exporters: [otlp_grpc/alloy, debug]
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
