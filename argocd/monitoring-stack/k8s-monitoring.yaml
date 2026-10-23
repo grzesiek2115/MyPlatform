@@ -57,11 +57,11 @@ spec:
           linuxHosts:
             enabled: true
           energyMetrics:
-            enabled: true
+            enabled: false
 
         # Kubernetes cost allocation via OpenCost
         costMetrics:
-          enabled: true
+          enabled: false
           collector: alloy-singleton
           opencost:
             labelMatchers:
