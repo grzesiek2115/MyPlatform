@@ -74,7 +74,7 @@ spec:
           node-exporter:
             deploy: true
           opencost:
-            deploy: true
+            deploy: false
             metricsSource: prometheus
             opencost:
               exporter:
@@ -83,7 +83,7 @@ spec:
                 external:
                   url: http://prometheus-operated.monitoring.svc.cluster.local:9090
           kepler:
-            deploy: true
+            deploy: false
 
         # Scrapes pods carrying prometheus.io/scrape annotations
         annotationAutodiscovery:
