@@ -36,6 +36,13 @@ spec:
               # destination defaults to TLS and the exporter fails with
               # "tls: first record does not look like a TLS handshake".
               insecure: true
+            # Tempo only accepts traces; without this, otlp destinations take all
+            # signals and Tempo rejects metrics/logs. Disabled here so they route
+            # to the prometheus and loki destinations instead.
+            metrics:
+              enabled: false
+            logs:
+              enabled: false
           pyroscope:
             type: pyroscope
             url: http://pyroscope.pyroscope.svc.cluster.local:4040
