@@ -24,6 +24,10 @@ spec:
           enabled: false
         opentelemetry-collector:
           config:
+            receivers:
+              kubeletstats:
+                # Kind's self-signed kubelet serving cert has no IP SANs
+                insecure_skip_verify: true
             exporters:
               otlp_grpc/alloy:
                 endpoint: k8s-monitoring-alloy-receiver.monitoring.svc.cluster.local:4317
