@@ -1,0 +1,141 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-otel-demo-red
+  namespace: grafana
+  labels:
+    grafana_dashboard: "1"
+data:
+  otel-demo-red.json: |
+    {
+      "uid": "otel-demo-red",
+      "title": "OTel Demo - RED (span metrics)",
+      "tags": ["opentelemetry-demo", "red", "span-metrics"],
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "refresh": "30s",
+      "time": { "from": "now-1h", "to": "now" },
+      "templating": {
+        "list": [
+          {
+            "name": "datasource",
+            "label": "Data source",
+            "type": "datasource",
+            "query": "prometheus",
+            "current": { "text": "Prometheus", "value": "Prometheus" }
+          },
+          {
+            "name": "service",
+            "label": "Service",
+            "type": "query",
+            "datasource": { "type": "prometheus", "uid": "${datasource}" },
+            "query": { "query": "label_values(traces_span_metrics_calls_total{span_kind=\"SPAN_KIND_SERVER\"}, service_name)", "refId": "service" },
+            "refresh": 2,
+            "multi": true,
+            "includeAll": true,
+            "current": { "text": "All", "value": "$__all" },
+            "sort": 1
+          }
+        ]
+      },
+      "panels": [
+        {
+          "id": 1,
+          "type": "timeseries",
+          "title": "Rate - requests/s per service",
+          "gridPos": { "h": 9, "w": 8, "x": 0, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] },
+          "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"], "sortBy": "Mean", "sortDesc": true } },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (service_name) (rate(traces_span_metrics_calls_total{span_kind=\"SPAN_KIND_SERVER\", service_name=~\"$service\"}[$__rate_interval]))",
+              "legendFormat": "{{service_name}}"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "type": "timeseries",
+          "title": "Errors - % of failed requests per service",
+          "gridPos": { "h": 9, "w": 8, "x": 8, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": { "defaults": { "unit": "percentunit", "min": 0 }, "overrides": [] },
+          "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"], "sortBy": "Max", "sortDesc": true } },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "(sum by (service_name) (rate(traces_span_metrics_calls_total{span_kind=\"SPAN_KIND_SERVER\", status_code=\"STATUS_CODE_ERROR\", service_name=~\"$service\"}[$__rate_interval])) or sum by (service_name) (rate(traces_span_metrics_calls_total{span_kind=\"SPAN_KIND_SERVER\", service_name=~\"$service\"}[$__rate_interval])) * 0) / sum by (service_name) (rate(traces_span_metrics_calls_total{span_kind=\"SPAN_KIND_SERVER\", service_name=~\"$service\"}[$__rate_interval]))",
+              "legendFormat": "{{service_name}}"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "type": "timeseries",
+          "title": "Duration - p95 latency per service",
+          "gridPos": { "h": 9, "w": 8, "x": 16, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
+          "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"], "sortBy": "Mean", "sortDesc": true } },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "histogram_quantile(0.95, sum by (le, service_name) (rate(traces_span_metrics_duration_milliseconds_bucket{span_kind=\"SPAN_KIND_SERVER\", service_name=~\"$service\"}[$__rate_interval])))",
+              "legendFormat": "{{service_name}}"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "type": "table",
+          "title": "Top endpoints (span_name) - rate, errors, p95",
+          "gridPos": { "h": 10, "w": 24, "x": 0, "y": 9 },
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "targets": [
+            {
+              "refId": "rate",
+              "instant": true,
+              "format": "table",
+              "expr": "topk(20, sum by (service_name, span_name) (rate(traces_span_metrics_calls_total{span_kind=\"SPAN_KIND_SERVER\", service_name=~\"$service\"}[5m])))"
+            },
+            {
+              "refId": "errors",
+              "instant": true,
+              "format": "table",
+              "expr": "sum by (service_name, span_name) (rate(traces_span_metrics_calls_total{span_kind=\"SPAN_KIND_SERVER\", status_code=\"STATUS_CODE_ERROR\", service_name=~\"$service\"}[5m]))"
+            },
+            {
+              "refId": "p95",
+              "instant": true,
+              "format": "table",
+              "expr": "histogram_quantile(0.95, sum by (le, service_name, span_name) (rate(traces_span_metrics_duration_milliseconds_bucket{span_kind=\"SPAN_KIND_SERVER\", service_name=~\"$service\"}[5m])))"
+            }
+          ],
+          "transformations": [
+            { "id": "merge", "options": {} },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": { "Time": true },
+                "renameByName": { "Value #rate": "req/s", "Value #errors": "errors/s", "Value #p95": "p95 (ms)" }
+              }
+            },
+            { "id": "sortBy", "options": { "sort": [{ "field": "req/s", "desc": true }] } }
+          ],
+          "fieldConfig": {
+            "defaults": { "decimals": 2 },
+            "overrides": [
+              {
+                "matcher": { "id": "byName", "options": "errors/s" },
+                "properties": [
+                  { "id": "custom.cellOptions", "value": { "type": "color-background" } },
+                  { "id": "thresholds", "value": { "mode": "absolute", "steps": [{ "color": "transparent", "value": null }, { "color": "red", "value": 0.01 }] } }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
